@@ -1,5 +1,6 @@
 package com.example.xo;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.os.CountDownTimer;
 import android.os.Handler;
@@ -9,12 +10,11 @@ import android.widget.TextView;
 import android.widget.Toast;
 import androidx.appcompat.app.AppCompatActivity;
 import java.util.Arrays;
-import java.util.Random;
 
 public class game_activity extends AppCompatActivity {
     int counter = 0;
-    String firstPlayer = "X";
-    String secondPlayer = "O";
+    String firstPlayer;
+    String secondPlayer;
     String[] board = {"", "", "", "", "", "", "", "", ""};
     int[] indexImage = {
             R.id.img_0, R.id.img_1, R.id.img_2,
@@ -30,7 +30,8 @@ public class game_activity extends AppCompatActivity {
     int playerXScore = 0;
     int playerOScore = 0;
 
-    CountDownTimer playerTimer;
+    CountDownTimer playerXTimer;
+    CountDownTimer playerOTimer;
     int playerTimeLimit = 60000;
     boolean isPlayerXTurn = true;
     boolean gameRunning = false;
@@ -40,20 +41,19 @@ public class game_activity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_game);
 
+        Intent intent = getIntent();
+        firstPlayer = intent.getStringExtra("firstPlayer");
+        secondPlayer = firstPlayer.equals("X") ? "O" : "X";
+
         playerTurnText = findViewById(R.id.player_turn_text);
         playerXScoreText = findViewById(R.id.playerX_score);
         playerOScoreText = findViewById(R.id.playerO_score);
         timerText = findViewById(R.id.time_counter);
 
-        Random random = new Random();
-        if (random.nextBoolean()) {
-            firstPlayer = "X";
-            secondPlayer = "O";
+        if (firstPlayer.equals("X")) {
             playerTurnText.setText("Player (X) Turn");
             isPlayerXTurn = true;
         } else {
-            firstPlayer = "O";
-            secondPlayer = "X";
             playerTurnText.setText("Player (O) Turn");
             isPlayerXTurn = false;
         }
@@ -73,15 +73,15 @@ public class game_activity extends AppCompatActivity {
             if (checkWin()) {
                 if (isPlayerXTurn) {
                     playerXScore++;
-                    showWinMessage(firstPlayer);
+                    showWinMessage("Player X");
                 } else {
                     playerOScore++;
-                    showWinMessage(secondPlayer);
+                    showWinMessage("Player O");
                 }
                 updateScores();
                 resetGameWithDelay();
             } else if (isBoardFull()) {
-                Toast.makeText(this, "It's a draw!", Toast.LENGTH_SHORT).show();
+                showDrawMessage();
                 resetGameWithDelay();
             } else {
                 updateTurn();
@@ -146,6 +146,10 @@ public class game_activity extends AppCompatActivity {
         Toast.makeText(this, player + " Wins!", Toast.LENGTH_SHORT).show();
     }
 
+    private void showDrawMessage() {
+        Toast.makeText(this, "Draw!", Toast.LENGTH_SHORT).show();
+    }
+
     private void resetGame() {
         Arrays.fill(board, "");
         for (int i = 0; i < indexImage.length; i++) {
@@ -167,15 +171,10 @@ public class game_activity extends AppCompatActivity {
     }
 
     private void startNewRound() {
-        Random random = new Random();
-        if (random.nextBoolean()) {
-            firstPlayer = "X";
-            secondPlayer = "O";
+        if (firstPlayer.equals("X")) {
             playerTurnText.setText("Player (X) Turn");
             isPlayerXTurn = true;
         } else {
-            firstPlayer = "O";
-            secondPlayer = "X";
             playerTurnText.setText("Player (O) Turn");
             isPlayerXTurn = false;
         }
@@ -195,28 +194,40 @@ public class game_activity extends AppCompatActivity {
 
     private void startTimer() {
         gameRunning = true;
-        playerTimer = new CountDownTimer(playerTimeLimit, 1000) {
-            @Override
-            public void onTick(long millisUntilFinished) {
-                timerText.setText(String.format("%02d:%02d", millisUntilFinished / 60000, (millisUntilFinished % 60000) / 1000));
-            }
 
-            @Override
-            public void onFinish() {
-                if (isPlayerXTurn) {
-                    playerOScore++;
-                } else {
-                    playerXScore++;
+        if (isPlayerXTurn) {
+            playerXTimer = new CountDownTimer(playerTimeLimit, 1000) {
+                @Override
+                public void onTick(long millisUntilFinished) {
+                    timerText.setText(String.format("%02d:%02d", millisUntilFinished / 60000, (millisUntilFinished % 60000) / 1000));
                 }
-                updateScores();
-                updateTurn();
-            }
-        }.start();
+
+                @Override
+                public void onFinish() {
+                    updateTurn();  // تغيير الدور عند انتهاء الوقت
+                }
+            }.start();
+        } else {
+            playerOTimer = new CountDownTimer(playerTimeLimit, 1000) {
+                @Override
+                public void onTick(long millisUntilFinished) {
+                    timerText.setText(String.format("%02d:%02d", millisUntilFinished / 60000, (millisUntilFinished % 60000) / 1000));
+                }
+
+                @Override
+                public void onFinish() {
+                    updateTurn();
+                }
+            }.start();
+        }
     }
 
     private void cancelTimer() {
-        if (playerTimer != null) {
-            playerTimer.cancel();
+        if (playerXTimer != null) {
+            playerXTimer.cancel();
+        }
+        if (playerOTimer != null) {
+            playerOTimer.cancel();
         }
     }
 
