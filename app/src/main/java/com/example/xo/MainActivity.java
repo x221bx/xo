@@ -24,7 +24,7 @@ public class MainActivity extends AppCompatActivity   {
     }
 
     private void navigateToGameActivity(String firstPlayer){
-        Intent intent = new Intent(this, game_activity.class);
+        Intent intent = new Intent(this, GameActivity.class);
         intent.putExtra("firstPlayer", firstPlayer);
         startActivity(intent);
     }

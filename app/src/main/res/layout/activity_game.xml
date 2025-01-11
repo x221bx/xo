@@ -6,7 +6,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="@drawable/backgroundxo"
-    tools:context=".game_activity">
+    tools:context=".GameActivity">
 
     <LinearLayout
         android:id="@+id/scoreBoardLayout"
@@ -93,14 +93,14 @@
                     tools:text="X" />
 
                 <TextView
-                    android:id="@+id/time_counter"
+                    android:id="@+id/rest"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:gravity="center"
                     android:padding="10dp"
                     android:textColor="@color/black"
-                    android:textSize="16sp"
-                    tools:text="1:56" />
+                    android:textSize="20sp"
+                    android:text="Rest" />
             </LinearLayout>
         </androidx.cardview.widget.CardView>
 

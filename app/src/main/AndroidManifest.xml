@@ -13,7 +13,7 @@
         android:theme="@style/Theme.Xo"
         tools:targetApi="31">
         <activity
-            android:name=".game_activity"
+            android:name=".GameActivity"
             android:exported="false" />
         <activity
             android:name=".MainActivity"
